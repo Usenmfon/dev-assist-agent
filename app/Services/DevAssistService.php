@@ -61,12 +61,46 @@ class DevAssistService
 
     public function sendToTelex(string $channelId, string $response): void
     {
-        Http::withToken(env('TELEX_AUTH_TOKEN'))->post(
-            env('TELEX_API_URL').'/agent-message',
-            [
-                'channel_id' => $channelId,
-                'text' => $response,
-            ]
-        );
+        // Http::withToken(env('TELEX_AUTH_TOKEN'))->post(
+        //     env('TELEX_API_URL').'/agent-message',
+        //     [
+        //         'channel_id' => $channelId,
+        //         'text' => $response,
+        //     ]
+        // );
+        try {
+            $response = Http::post(
+                'https://api.telex.im/agent-message',
+                [
+                    'channel_id' => $channelId,
+                    'text' => $response,
+                ]
+            );
+
+            if ($response->successful()) {
+                Log::info('Telex message sent successfully', [
+                    'status' => $response->status(),
+                    'body' => $response->json(),
+                ]);
+                dd('✅ Success', $response->json());
+            }
+            elseif ($response->clientError()) {
+                Log::error('Client error while sending to Telex', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+                dd('⚠️ Client error', $response->status(), $response->body());
+            } elseif ($response->serverError()) {
+                Log::error('Server error while sending to Telex', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+                dd('❌ Server error', $response->status(), $response->body());
+            }
+
+        } catch (\Throwable $e) {
+            Log::error('Telex send error: '.$e->getMessage());
+            dd('💥 Exception', $e->getMessage());
+        }
     }
 }

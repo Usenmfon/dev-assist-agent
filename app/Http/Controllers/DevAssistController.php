@@ -28,7 +28,7 @@ class DevAssistController extends Controller
             'intent' => $intent,
         ]);
 
-        $service->sendToTelex($validated['channel_id'], $aiResponse);
+        // $service->sendToTelex($validated['channel_id'], $aiResponse);
 
         return response()->json(['status' => 'success', 'response' => $aiResponse]);
     }

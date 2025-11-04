@@ -8,7 +8,6 @@ use NeuronAI\Agent;
 use NeuronAI\SystemPrompt;
 use NeuronAI\Providers\AIProviderInterface;
 use NeuronAI\Providers\Gemini\Gemini;
-use NeuronAI\Providers\OpenAI\OpenAI;
 
 class DevAssistAgent extends Agent
 {
