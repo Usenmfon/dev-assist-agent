@@ -7,6 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class DevAssist extends Model
 {
     protected $fillable = [
-        'channel_id', 'user_id', 'message', 'response', 'intent',
+        'message', 'response', 'intent',
     ];
 }

@@ -21,8 +21,6 @@ class DevAssistController extends Controller
         }
 
         $validated = $request->validate([
-            'channel_id' => 'required|string',
-            'user_id' => 'required|string',
             'message' => 'required|string',
         ]);
 
@@ -30,14 +28,12 @@ class DevAssistController extends Controller
         $aiResponse = $service->processMessage($intent, $validated['message']);
 
         DevAssist::create([
-            'channel_id' => $validated['channel_id'],
-            'user_id' => $validated['user_id'],
             'message' => $validated['message'],
             'response' => $aiResponse,
             'intent' => $intent,
         ]);
 
-        $service->sendToTelex($validated['channel_id'], $aiResponse);
+        // $service->sendToTelex($validated['channel_id'], $aiResponse);
 
         return response()->json([
             'status' => 'success',

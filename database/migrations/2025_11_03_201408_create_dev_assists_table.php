@@ -13,8 +13,6 @@ return new class extends Migration
     {
         Schema::create('dev_assists', function (Blueprint $table) {
             $table->id();
-            $table->string('channel_id');
-            $table->string('user_id');
             $table->text('message');
             $table->text('response')->nullable();
             $table->string('intent')->nullable();
