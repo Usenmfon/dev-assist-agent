@@ -11,6 +11,15 @@ class DevAssistController extends Controller
 {
     public function handleWebhook(Request $request, DevAssistService $service)
     {
+        if ($request->isMethod('get')) {
+            return response()->json([
+                'status' => 'success',
+                'data' => [
+                    'message' => 'Dev Assist A2A endpoint is active and ready 🚀',
+                ],
+            ]);
+        }
+
         $validated = $request->validate([
             'channel_id' => 'required|string',
             'user_id' => 'required|string',
@@ -28,9 +37,14 @@ class DevAssistController extends Controller
             'intent' => $intent,
         ]);
 
-        // $service->sendToTelex($validated['channel_id'], $aiResponse);
+        $service->sendToTelex($validated['channel_id'], $aiResponse);
 
-        return response()->json(['status' => 'success', 'response' => $aiResponse]);
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'message' => $aiResponse,
+            ],
+        ]);
     }
 
     public function logs()

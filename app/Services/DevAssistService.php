@@ -61,15 +61,8 @@ class DevAssistService
 
     public function sendToTelex(string $channelId, string $response): void
     {
-        // Http::withToken(env('TELEX_AUTH_TOKEN'))->post(
-        //     env('TELEX_API_URL').'/agent-message',
-        //     [
-        //         'channel_id' => $channelId,
-        //         'text' => $response,
-        //     ]
-        // );
         try {
-            $response = Http::post(
+            $telexResponse = Http::post(
                 'https://api.telex.im/agent-message',
                 [
                     'channel_id' => $channelId,
@@ -77,30 +70,24 @@ class DevAssistService
                 ]
             );
 
-            if ($response->successful()) {
-                Log::info('Telex message sent successfully', [
-                    'status' => $response->status(),
-                    'body' => $response->json(),
+            if ($telexResponse->successful()) {
+                Log::info('✅ Message sent to Telex', [
+                    'status' => $telexResponse->status(),
+                    'body' => $telexResponse->json(),
                 ]);
-                dd('✅ Success', $response->json());
+            } elseif ($telexResponse->clientError()) {
+                Log::warning('⚠️ Client error when sending to Telex', [
+                    'status' => $telexResponse->status(),
+                    'body' => $telexResponse->body(),
+                ]);
+            } elseif ($telexResponse->serverError()) {
+                Log::error('❌ Server error when sending to Telex', [
+                    'status' => $telexResponse->status(),
+                    'body' => $telexResponse->body(),
+                ]);
             }
-            elseif ($response->clientError()) {
-                Log::error('Client error while sending to Telex', [
-                    'status' => $response->status(),
-                    'body' => $response->body(),
-                ]);
-                dd('⚠️ Client error', $response->status(), $response->body());
-            } elseif ($response->serverError()) {
-                Log::error('Server error while sending to Telex', [
-                    'status' => $response->status(),
-                    'body' => $response->body(),
-                ]);
-                dd('❌ Server error', $response->status(), $response->body());
-            }
-
         } catch (\Throwable $e) {
-            Log::error('Telex send error: '.$e->getMessage());
-            dd('💥 Exception', $e->getMessage());
+            Log::error('💥 Telex send error: '.$e->getMessage());
         }
     }
 }
