@@ -37,8 +37,8 @@ class DevAssistController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'data' => [
-                'message' => $aiResponse,
+            'content' => [
+                'text' => $aiResponse,
             ],
         ]);
     }
