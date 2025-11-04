@@ -22,7 +22,7 @@ php artisan optimize:clear
 # php artisan route:list
 
 echo "Running migrations..."
-php artisan migrate:fresh --force
+php artisan migrate --force
 
 # echo "Running seeder files..."
 # php artisan db:seed --force
