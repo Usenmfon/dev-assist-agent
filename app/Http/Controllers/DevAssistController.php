@@ -61,16 +61,16 @@ class DevAssistController extends Controller
                     'message' => [
                         'messageId' => $messageId,
                         'role' => 'agent',
+                        'kind' => 'message',
                         'parts' => [
                             [
                                 'kind' => 'text',
                                 'text' => $aiResponse,
                             ],
                         ],
-                        'kind' => 'message',
                     ],
                 ],
-                
+
                 'artifacts' => [
                     [
                         'artifactId' => $artifactMsg,
@@ -108,7 +108,7 @@ class DevAssistController extends Controller
                     ],
                 ],
                 'history' => [$message],
-                'kind' => 'task',
+                'kind' => 'message',
             ],
         ]);
 
