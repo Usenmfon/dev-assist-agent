@@ -60,17 +60,17 @@ class DevAssistController extends Controller
                     'timestamp' => now()->toISOString(),
                     'message' => [
                         'messageId' => $messageId,
-                        'role' => 'agent',
+                        'role' => 'assistant',
+                        'kind' => 'message',
                         'parts' => [
                             [
                                 'kind' => 'text',
                                 'text' => $aiResponse,
                             ],
                         ],
-                        'kind' => 'message',
                     ],
                 ],
-                
+
                 'artifacts' => [
                     [
                         'artifactId' => $artifactMsg,
@@ -108,7 +108,7 @@ class DevAssistController extends Controller
                     ],
                 ],
                 'history' => [$message],
-                'kind' => 'task',
+                'kind' => 'message',
             ],
         ]);
 
