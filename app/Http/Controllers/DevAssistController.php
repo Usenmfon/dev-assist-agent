@@ -45,18 +45,29 @@ class DevAssistController extends Controller
             'jsonrpc' => '2.0',
             'id' => 'dev_assist_node',
             'result' => [
-                'message' => [
-                    'kind' => 'message',
-                    'role' => 'agent',
-                    'parts' => [[
-                        'kind' => 'text',
-                        'text' => $aiResponse,
-                    ]],
-                    'messageId' => 'msg-001',
-                    'taskId' => 'task-001',
+                'messages' => [
+                    [
+                        'kind' => 'message',
+                        'role' => 'assistant',
+                        'parts' => [
+                            [
+                                'kind' => 'text',
+                                'text' => $message,
+                            ],
+                        ],
+                        'artifacts' => [
+                            [
+                                'type' => 'code',
+                                'language' => 'php',
+                                'title' => 'Optimized Code',
+                                'content' => $aiResponse,
+                            ],
+                        ],
+                    ],
                 ],
             ],
         ]);
+
     }
 
     public function logs()
