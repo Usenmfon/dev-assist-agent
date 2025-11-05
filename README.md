@@ -1,59 +1,203 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Dev Assist — AI Code Helper Agent
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Dev Assist is an intelligent AI assistant built with **Laravel** and **Neuron AI**, integrated into **Telex.im** via the A2A protocol. It helps developers with debugging, explaining code snippets, and generating concise, context-aware solutions.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🚀 Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- 🤖 Built using **Neuron AI (Gemini model)** for intelligent responses.
+- 💬 A2A-compliant webhook endpoint for **Telex.im**.
+- 🧠 Detects user intent (explain, fix, generate).
+- 📦 Stores interactions in the database.
+- 🌐 Exposed publicly via **Expose** and **Render** for Telex integration.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## ⚙️ Setup Instructions
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### 1. Clone the Repository
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```bash
+git clone https://github.com/Usenmfon/dev-assist-agent
+cd dev-assist-agent
+```
 
-## Laravel Sponsors
+### 2. Install Dependencies
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```bash
+composer install
+cp .env.example .env
+php artisan key:generate
+```
 
-### Premium Partners
+### 3. Configure Environment
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Add the following to your `.env` file:
 
-## Contributing
+```env
+APP_URL=https://your-expose-or-render-url.com
+GEMINI_API_KEY=your_gemini_api_key
+GEMINI_MODEL=gemini-2.5-flash
+TELEX_API_URL=https://api.telex.im
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 4. Run Migrations
 
-## Code of Conduct
+```bash
+php artisan migrate
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 5. Start the Server
 
-## Security Vulnerabilities
+```bash
+php artisan serve
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Or if using **Expose**:
 
-## License
+```bash
+expose share http://127.0.0.1:8000
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+
+## 🧩 Telex Workflow JSON Example
+
+```json
+{
+  "active": true,
+  "category": "utilities",
+  "description": "AI Code Helper Agent built with Laravel + Neuron AI",
+  "id": "dev_assist_agent",
+  "long_description": "An intelligent assistant that helps developers by answering code questions and suggesting solutions directly in Telex.",
+  "name": "dev_assist_agent",
+  "nodes": [
+    {
+      "id": "dev_assist_node",
+      "name": "Dev Assist Node",
+      "parameters": {},
+      "position": [500, 200],
+      "type": "a2a/mastra-a2a-node",
+      "typeVersion": 1,
+      "url": "https://your-public-url.com/api/dev-assist/webhook"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "short_description": "An AI code helper for developers."
+}
+```
+
+---
+
+## 🔁 A2A Request Format
+
+Telex sends a POST request like this:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": "dev_assist_node",
+  "method": "message/send",
+  "params": {
+    "message": {
+      "kind": "message",
+      "role": "user",
+      "parts": [
+        {
+          "kind": "text",
+          "text": "Explain this PHP code..."
+        }
+      ],
+      "messageId": "msg-001",
+      "taskId": "task-001"
+    }
+  }
+}
+```
+
+Your agent should return a response like this:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": "dev_assist_node",
+  "result": {
+    "kind": "message",
+    "role": "assistant",
+    "parts": [
+      {
+        "kind": "text",
+        "text": "Here’s the explanation for your PHP code..."
+      }
+    ],
+    "messageId": "msg-001",
+    "taskId": "task-001"
+  }
+}
+```
+
+---
+
+## 🧠 Intent Detection
+
+| Keyword     | Intent          | Action |
+|--------------|----------------|--------|
+| explain      | `explain_code`  | Explains given code |
+| generate     | `generate_code` | Generates new code |
+| fix          | `fix_code`      | Suggests fixes |
+| (default)    | `general`       | General developer Q&A |
+
+---
+
+## 📡 Endpoint Example
+
+**POST** `/api/a2a/agent/dev_assist`
+
+| Field       | Type   | Description |
+|--------------|--------|-------------|
+| channel_id   | string | Telex channel UUID |
+| user_id      | string | User UUID |
+| message      | string | The user message |
+
+**Response Example:**
+
+```json
+{
+  "status": "success",
+  "response": "Here's your code explanation..."
+}
+```
+
+---
+
+## 🧾 Logging
+
+Logs are stored in `/storage/logs/laravel.log` and can be viewed in the dashboard via `/logs` endpoint.
+
+---
+
+## 🧑‍💻 Technologies Used
+
+- Laravel 11
+- Neuron AI (`neuron-core/neuron-ai`)
+- Gemini (Model: `gemini-2.5-flash`)
+- Expose / Render (for public access)
+- Telex.im (A2A protocol)
+
+---
+
+## 📚 Author
+
+**Usenmfon Uko**  
+Software Engineer | AI Developer  
+[Telex Agent Link](https://telex.im/chessassist/dm/019a540b-a5aa-79bc-a295-a24d0ceb5969/019a540b-8829-79b7-ba4b-5f3af5a3c107)
+
+---
+
+## 🏁 License
+
+MIT License © 2025 Usenmfon Uko
