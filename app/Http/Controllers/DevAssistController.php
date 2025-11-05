@@ -3,9 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\DevAssist;
-use Illuminate\Http\Request;
 use App\Services\DevAssistService;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
 
 class DevAssistController extends Controller
 {
@@ -14,28 +13,49 @@ class DevAssistController extends Controller
         if ($request->isMethod('get')) {
             return response()->json([
                 'status' => 'success',
-                'response' =>'Dev Assist A2A endpoint is active and ready 🚀'
+                'response' => 'Dev Assist A2A endpoint is active and ready 🚀',
             ]);
         }
 
-        $validated = $request->validate([
-            'message' => 'required|string',
-        ]);
+        $payload = $request->all();
 
-        $intent = $service->detectIntent($validated['message']);
-        $aiResponse = $service->processMessage($intent, $validated['message']);
+        // Telex sends messages inside params.message.parts[0].text
+        $message = data_get($payload, 'params.message.parts.0.text');
+        $channelId = data_get($payload, 'params.channel_id', 'unknown-channel');
+        $userId = data_get($payload, 'params.user_id', 'unknown-user');
 
-        DevAssist::create([
-            'message' => $validated['message'],
-            'response' => $aiResponse,
-            'intent' => $intent,
-        ]);
+        if (! $message) {
+            return response()->json([
+                'jsonrpc' => '2.0',
+                'id' => 'dev_assist_node',
+                'error' => [
+                    'code' => -32602,
+                    'message' => 'Invalid A2A request — missing message text.',
+                ],
+            ], 400);
+        }
 
-        // $service->sendToTelex($validated['channel_id'], $aiResponse);
+        $intent = $service->detectIntent($message);
+        $aiResponse = $service->processMessage($intent, $message);
+
+        // Save or send response...
+        $service->sendToTelex($channelId, $aiResponse);
 
         return response()->json([
-            'status' => 'success',
-            'response' => $aiResponse,
+            'jsonrpc' => '2.0',
+            'id' => 'dev_assist_node',
+            'result' => [
+                'message' => [
+                    'kind' => 'message',
+                    'role' => 'agent',
+                    'parts' => [[
+                        'kind' => 'text',
+                        'text' => $aiResponse,
+                    ]],
+                    'messageId' => 'msg-001',
+                    'taskId' => 'task-001',
+                ],
+            ],
         ]);
     }
 
