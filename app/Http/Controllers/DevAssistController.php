@@ -14,9 +14,7 @@ class DevAssistController extends Controller
         if ($request->isMethod('get')) {
             return response()->json([
                 'status' => 'success',
-                'data' => [
-                    'message' => 'Dev Assist A2A endpoint is active and ready 🚀',
-                ],
+                'response' =>'Dev Assist A2A endpoint is active and ready 🚀'
             ]);
         }
 
