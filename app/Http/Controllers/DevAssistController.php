@@ -42,75 +42,75 @@ class DevAssistController extends Controller
         // Save or send response...
         $service->sendToTelex($channelId, $aiResponse);
 
-        $taskId       = $message["taskId"] ?? Str::uuid()->toString();
-            $contextId    = Str::uuid()->toString();
-            $messageId    = Str::uuid()->toString();
-            $artifactMsg  = Str::uuid()->toString();
-            $artifactTool = Str::uuid()->toString();
-            $id = "dev_assist_node";
+        $taskId = $message['taskId'] ?? Str::uuid()->toString();
+        $contextId = Str::uuid()->toString();
+        $messageId = Str::uuid()->toString();
+        $artifactMsg = Str::uuid()->toString();
+        $artifactTool = Str::uuid()->toString();
+        $id = 'dev_assist_node';
 
         return response()->json([
-                "jsonrpc" => "2.0",
-                "id" => $id,
-                "result" => [
-                    "id" => $taskId,
-                    "contextId" => $contextId,
-                    "status" => [
-                        "state" => "completed",
-                        "timestamp" => now()->toISOString(),
-                        "message" => [
-                            "messageId" => $messageId,
-                            "role" => "agent",
-                            "parts" => [
-                                [
-                                    "kind" => "text",
-                                    "text" => $aiResponse
-                                ]
+            'jsonrpc' => '2.0',
+            'id' => $id,
+            'result' => [
+                'id' => $taskId,
+                'contextId' => $contextId,
+                'status' => [
+                    'state' => 'completed',
+                    'timestamp' => now()->toISOString(),
+                    'message' => [
+                        'messageId' => $messageId,
+                        'role' => 'agent',
+                        'parts' => [
+                            [
+                                'kind' => 'text',
+                                'text' => $aiResponse,
                             ],
-                            "kind" => "message"
-                        ]
-                    ],
-                    // :white_check_mark: :white_check_mark: THIS IS WHAT YOU WERE MISSING — ARTIFACTS
-                    "artifacts" => [
-                        [
-                            "artifactId" => $artifactMsg,
-                            "name" => "newsAgentResponse",
-                            "parts" => [
-                                [
-                                    "kind" => "text",
-                                    "text" => $aiResponse
-                                ]
-                            ]
                         ],
-                        [
-                            "artifactId" => $artifactTool,
-                            "name" => "ToolResults",
-                            "parts" => [
-                                [
-                                    "kind" => "data",
-                                    "data" => [
-                                        "type" => "tool-result",
-                                        "runId" => Str::uuid()->toString(),
-                                        "from" => "AGENT",
-                                        "payload" => [
-                                            "args" => [
-                                                "text" => $message
-                                            ],
-                                            "toolName" => "NewsAgent",
-                                            "result" => [
-                                                "success" => true,
-                                                "responseLength" => strlen($aiResponse)
-                                            ]
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ]
+                        'kind' => 'message',
                     ],
-                    "history" => [$message],
-                    "kind" => "task"
-                ]
-            ]);
+                ],
+                
+                'artifacts' => [
+                    [
+                        'artifactId' => $artifactMsg,
+                        'name' => 'newsAgentResponse',
+                        'parts' => [
+                            [
+                                'kind' => 'text',
+                                'text' => $aiResponse,
+                            ],
+                        ],
+                    ],
+                    [
+                        'artifactId' => $artifactTool,
+                        'name' => 'ToolResults',
+                        'parts' => [
+                            [
+                                'kind' => 'data',
+                                'data' => [
+                                    'type' => 'tool-result',
+                                    'runId' => Str::uuid()->toString(),
+                                    'from' => 'AGENT',
+                                    'payload' => [
+                                        'args' => [
+                                            'text' => $message,
+                                        ],
+                                        'toolName' => 'NewsAgent',
+                                        'result' => [
+                                            'success' => true,
+                                            'responseLength' => strlen($aiResponse),
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                'history' => [$message],
+                'kind' => 'task',
+            ],
+        ]);
 
     }
 
