@@ -1,55 +1,41 @@
-<?php
-
-namespace App\Http\Controllers;
-
-use App\Models\DevAssist;
-use App\Services\DevAssistService;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-
-class DevAssistController extends Controller
-{
-    public function handleWebhook(Request $request, DevAssistService $service)
+<!--
+public function handle(Request $request, NewsAgent $agent)
     {
-        if ($request->isMethod('get')) {
+        $body = $request->all();
+        // $validated = $request->validate([
+        //     'text' => 'required|string|min:3|max:500',
+        // ]);
+        //? Validate minimal JSON-RPC
+        $jsonrpc = $body['jsonrpc'] ?? null;
+        $id = $body['id'] ?? null;
+        $params = $body['params'] ?? [];
+        $message = $params['message'] ?? null;
+        // dd($jsonrpc, $id, $params, $message);
+        if ($jsonrpc !== '2.0' || !$id || !$message) {
             return response()->json([
-                'status' => 'success',
-                'response' => 'Dev Assist A2A endpoint is active and ready 🚀',
-            ]);
-        }
-
-        $payload = $request->all();
-
-        // Telex sends messages inside params.message.parts[0].text
-        $message = data_get($payload, 'params.message.parts.0.text');
-        $channelId = data_get($payload, 'params.channel_id', 'unknown-channel');
-        $userId = data_get($payload, 'params.user_id', 'unknown-user');
-
-        if (! $message) {
-            return response()->json([
-                'jsonrpc' => '2.0',
-                'id' => 'dev_assist_node',
-                'error' => [
-                    'code' => -32602,
-                    'message' => 'Invalid A2A request — missing message text.',
-                ],
+                "jsonrpc" => "2.0",
+                "id" => $id ?? null,
+                "error" => [
+                    "code" => -32600,
+                    "message" => "Invalid A2A JSON-RPC Request"
+                ]
             ], 400);
         }
-
-        $intent = $service->detectIntent($message);
-        $aiResponse = $service->processMessage($intent, $message);
-
-        // Save or send response...
-        $service->sendToTelex($channelId, $aiResponse);
-
-        $taskId       = $message["taskId"] ?? Str::uuid()->toString();
+        //? Extract user text
+        $text = $message['parts'][0]['text'] ?? '';
+        try {
+            //? call news agent response
+            $agentResponse = $agent->chat(
+                new UserMessage($text)
+            )->getContent();
+            //? Build A2A response
+            $responseText = $agentResponse ?? "No response";
+            $taskId       = $message["taskId"] ?? Str::uuid()->toString();
             $contextId    = Str::uuid()->toString();
             $messageId    = Str::uuid()->toString();
             $artifactMsg  = Str::uuid()->toString();
             $artifactTool = Str::uuid()->toString();
-            $id = "dev_assist_node";
-
-        return response()->json([
+            return response()->json([
                 "jsonrpc" => "2.0",
                 "id" => $id,
                 "result" => [
@@ -64,7 +50,7 @@ class DevAssistController extends Controller
                             "parts" => [
                                 [
                                     "kind" => "text",
-                                    "text" => $aiResponse
+                                    "text" => $responseText
                                 ]
                             ],
                             "kind" => "message"
@@ -78,7 +64,7 @@ class DevAssistController extends Controller
                             "parts" => [
                                 [
                                     "kind" => "text",
-                                    "text" => $aiResponse
+                                    "text" => $responseText
                                 ]
                             ]
                         ],
@@ -94,12 +80,12 @@ class DevAssistController extends Controller
                                         "from" => "AGENT",
                                         "payload" => [
                                             "args" => [
-                                                "text" => $message
+                                                "text" => $text
                                             ],
                                             "toolName" => "NewsAgent",
                                             "result" => [
                                                 "success" => true,
-                                                "responseLength" => strlen($aiResponse)
+                                                "responseLength" => strlen($responseText)
                                             ]
                                         ]
                                     ]
@@ -111,11 +97,36 @@ class DevAssistController extends Controller
                     "kind" => "task"
                 ]
             ]);
-
+        } catch (Throwable $e) {
+            Log::error('A2A NewsAgent failed', ['error' => $e->getMessage()]);
+            return response()->json([
+                "jsonrpc" => "2.0",
+                "id" => $id,
+                "error" => [
+                    "code" => -32603,
+                    "message" => "Internal error",
+                    "data" => $e->getMessage()
+                ]
+            ], 500);
+        }
     }
-
-    public function logs()
-    {
-        return DevAssist::latest()->paginate(10);
+The request body
+{
+  "jsonrpc": "2.0",
+  "id": "req-001",
+  "method": "message/send",
+  "params": {
+    "message": {
+      "kind": "message",
+      "role": "user",
+      "parts": [
+        {
+          "kind": "text",
+          "text": "Tell me about business news in Nigeria, translate to German."
+        }
+      ],
+      "messageId": "msg-001",
+      "taskId": "task-001"
     }
-}
+  }
+} -->
