@@ -63,7 +63,7 @@ class DevAssistService
     {
         try {
             $telexResponse = Http::post(
-                'https://api.telex.im/agent-message',
+                'https://ping.telex.im/v1/a2a/webhooks/019a512a-063a-7ee7-ae94-749d99e53269',
                 [
                     'channel_id' => $channelId,
                     'text' => $response,
