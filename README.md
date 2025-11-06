@@ -80,7 +80,7 @@ expose share http://127.0.0.1:8000
       "position": [500, 200],
       "type": "a2a/mastra-a2a-node",
       "typeVersion": 1,
-      "url": "https://your-public-url.com/api/dev-assist/webhook"
+      "url": "https://your-public-url.com/api/a2a/agent/dev_assist"
     }
   ],
   "pinData": {},
